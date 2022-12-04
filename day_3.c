@@ -28,16 +28,26 @@ char common(const char comp1[], const char comp2[]) {
     return 0;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        exit(1);
+char common_2(const char comp1[], const char comp2[], const char comp3[]) {
+    for (size_t i = 0; i < strlen(comp1); i++) {
+        for (size_t j = 0; j < strlen(comp2); j++) {
+            for (size_t k = 0; k < strlen(comp3); k++) {
+                if (comp1[i] == comp2[j] && comp1[i] == comp3[k]) {
+                    return comp1[i];
+                }
+            }
+        }
     }
 
+    return 0;
+}
+
+int part_1(const char fname[]) {
     int total_priorities = 0;
 
     const int LINE_SIZE = 60;
     char buf[LINE_SIZE];
-    FILE* input = fopen(argv[1], "r");
+    FILE* input = fopen(fname, "r");
     while (fgets(buf, LINE_SIZE, input) != NULL) {
         buf[strcspn(buf, "\n")] = 0;  // strip trailing newline
         int len = strlen(buf);
@@ -60,5 +70,39 @@ int main(int argc, char *argv[]) {
 
     fclose(input);
 
-    printf("Part 1: %d\n", total_priorities);
+    return total_priorities;
+}
+
+int part_2(const char fname[]) {
+    int total_priorities = 0;
+
+    const int LINE_SIZE = 60;
+    FILE* input = fopen(fname, "r");
+
+    int set_size = 0;
+    char rucksacks[3][LINE_SIZE];
+
+    while (fgets(rucksacks[set_size], LINE_SIZE, input) != NULL) {
+        rucksacks[set_size][strcspn(rucksacks[set_size], "\n")] = 0;  // strip trailing newline
+
+        if (set_size == 2) {
+            total_priorities += priority(common_2(rucksacks[0], rucksacks[1], rucksacks[2]))
+            set_size = 0;
+        } else {
+            set_size++;
+        }
+    }
+
+    fclose(input);
+
+    return total_priorities;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        exit(1);
+    }
+
+    printf("Part 1: %d\n", part_1(argv[1]));
+    printf("Part 2: %d\n", part_2(argv[1]));
 }
