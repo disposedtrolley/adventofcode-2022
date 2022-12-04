@@ -38,4 +38,6 @@ int main(int argc, char *argv[]) {
 
     printf("Part 1: %d\n", sums[0]);
     printf("Part 2: %d\n", sums[0] + sums[1] + sums[2]);
+
+    free(sums);
 }
