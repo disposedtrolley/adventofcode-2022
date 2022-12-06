@@ -3,8 +3,37 @@
 #include <string.h>
 #include <stdbool.h>
 
-void parse_stack_row(const char row[]) {
-    printf("len: %lu str: %s\n", strlen(row), row);
+#define STACK_SIZE 8
+
+typedef struct Stack {
+    int sp;
+    char values[STACK_SIZE];
+} Stack;
+
+Stack new_stack() {
+    Stack s = { .sp = -1 };
+    return s;
+}
+
+void push_stack(Stack *s, char val) {
+    s->sp++;
+    s->values[s->sp] = val;
+}
+
+char pop_stack(Stack *s)  {
+    char ret = s->values[s->sp];
+    s->sp--;
+    return ret;
+}
+
+void parse_stack_row(const char row[], Stack stacks[]) {
+    for (size_t i = 0; i < strlen(row); i++) {
+        if (row[i] >= 65 && row[i] <= 90) {
+            // Reached a stack.
+            // Stack index is one less than the label because the stacks are zero-indexed.
+            push_stack(&stacks[i/4], row[i]);
+        }
+    }
 }
 
 void parse_move_row(const char row[]) {
@@ -17,6 +46,10 @@ int main(int argc, char *argv[]) {
     }
 
     bool finished_parsing_stack_rows = false;
+
+    const int N_STACKS = 9;
+    Stack stacks[N_STACKS];
+    for (size_t i = 0; i < N_STACKS; i++) stacks[i] = new_stack();
 
     const int LINE_SIZE = 256;
     char buf[LINE_SIZE];
@@ -31,7 +64,7 @@ int main(int argc, char *argv[]) {
 
         // parse
         if (!finished_parsing_stack_rows) {
-            parse_stack_row(buf);
+            parse_stack_row(buf, stacks);
         } else if (strlen(buf) > 0 && buf[0] == 'm') {
             parse_move_row(buf);
         }
