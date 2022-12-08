@@ -39,7 +39,7 @@ void parse_stack_row(const char row[], Stack stacks[]) {
 void parse_move_row(const char row[], int instructions[3]) {
     int instruction_idx = 0;
     int n_spaces = 0;
-    char buf[2];
+    char buf[2] = {0};
     int buf_idx = 0;
     for (size_t i = 5; i < strlen(row); i++){
         if (row[i] == ' ') {
@@ -50,6 +50,7 @@ void parse_move_row(const char row[], int instructions[3]) {
                 instructions[instruction_idx] = atoi(buf);
                 instruction_idx++;
                 buf_idx = 0;
+                memset(buf, 0, sizeof(buf));
             }
 
             continue;
@@ -62,7 +63,10 @@ void parse_move_row(const char row[], int instructions[3]) {
         }
 
         // flush the "to" stack
-        if (i == strlen(row)-1) instructions[instruction_idx] = atoi(buf);
+        if (i == strlen(row)-1) {
+            instructions[instruction_idx] = atoi(buf);
+            memset(buf, 0, sizeof(buf));
+        }
     }
 }
 
