@@ -87,11 +87,7 @@ void parse_move_row(const char row[], int instructions[3]) {
     }
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        exit(1);
-    }
-
+void run(char fname[], int part) {
     bool finished_parsing_stack_rows = false;
 
     int instruction_idx = 0;
@@ -103,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     const int LINE_SIZE = 256;
     char buf[LINE_SIZE];
-    FILE* input = fopen(argv[1], "r");
+    FILE* input = fopen(fname, "r");
     while (fgets(buf, LINE_SIZE, input) != NULL) {
         buf[strcspn(buf, "\n")] = 0;  // strip trailing newline
 
@@ -133,17 +129,40 @@ int main(int argc, char *argv[]) {
         Stack from = stacks[instructions[i][1]-1];  // zero-indexed
         Stack to = stacks[instructions[i][2]-1];
 
-        for (size_t j = 0; j < n_to_move; j++) {
-            char crate = pop_stack(&from);
-            push_stack(&to, crate);
+        switch(part) {
+            case 1:
+                for (size_t j = 0; j < n_to_move; j++) {
+                    push_stack(&to, pop_stack(&from));
+                }
+                break;
+            case 2:
+                // Use the tmp stack to retain the original order of crates.
+                Stack tmp = new_stack();
+                for (size_t j = 0; j < n_to_move; j++) {
+                    push_stack(&tmp, pop_stack(&from));
+                }
+                while(!empty(&tmp)) {
+                    push_stack(&to, pop_stack(&tmp));
+                }
+                break;
         }
 
         stacks[instructions[i][1]-1] = from;
         stacks[instructions[i][2]-1] = to;
     }
 
+    printf("Part %d: ", part);
     for (size_t i = 0; i < N_STACKS; i++) {
         printf("%c", peek_stack(&stacks[i]));
     }
     printf("\n");
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        exit(1);
+    }
+
+    run(argv[1], 1);
+    run(argv[1], 2);
 }
