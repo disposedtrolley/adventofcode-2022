@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define STACK_SIZE 8
+#define STACK_SIZE 100
 
 typedef struct Stack {
     int sp;
@@ -24,6 +24,23 @@ char pop_stack(Stack *s)  {
     char ret = s->values[s->sp];
     s->sp--;
     return ret;
+}
+
+char peek_stack(Stack *s) {
+    return s->values[s->sp];
+}
+
+char empty(Stack *s) {
+    return s->sp == -1;
+}
+
+Stack reverse_stack(Stack *s) {
+    Stack reversed = new_stack();
+    while (!empty(s)) {
+        push_stack(&reversed, pop_stack(s));
+    }
+
+    return reversed;
 }
 
 void parse_stack_row(const char row[], Stack stacks[]) {
@@ -104,4 +121,29 @@ int main(int argc, char *argv[]) {
         }
     }
     fclose(input);
+
+    // Reverse the stacks, so they're in the correct order.
+    for (size_t i = 0; i < N_STACKS; i++) {
+        stacks[i] = reverse_stack(&stacks[i]);
+    }
+
+    // Run through instructions.
+    for (size_t i = 0; i < instruction_idx; i++) {
+        int n_to_move = instructions[i][0];
+        Stack from = stacks[instructions[i][1]-1];  // zero-indexed
+        Stack to = stacks[instructions[i][2]-1];
+
+        for (size_t j = 0; j < n_to_move; j++) {
+            char crate = pop_stack(&from);
+            push_stack(&to, crate);
+        }
+
+        stacks[instructions[i][1]-1] = from;
+        stacks[instructions[i][2]-1] = to;
+    }
+
+    for (size_t i = 0; i < N_STACKS; i++) {
+        printf("%c", peek_stack(&stacks[i]));
+    }
+    printf("\n");
 }
