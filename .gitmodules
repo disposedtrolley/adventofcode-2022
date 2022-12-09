@@ -1,0 +1,3 @@
+[submodule "vendor/ht"]
+	path = vendor/ht
+	url = git@github.com:benhoyt/ht.git
