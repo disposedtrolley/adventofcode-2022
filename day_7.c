@@ -6,30 +6,28 @@
 
 #define LINE_SIZE 100
 #define DIRNAME_LENGTH 100
+#define PATH_LENGTH 20
 
-void parse_cd(char command[LINE_SIZE], char **curr_dir) {
-    char dest_dir[DIRNAME_LENGTH];
-
+void parse_cd(char command[LINE_SIZE], Stack *path) {
     char *tok;
-    char *rest = command;
-
     int i = 0;
-    while ((tok = strtok_r(rest, " ", &rest))) {
-        if (i < 2) {
-            i++;
-            continue;
-        }
-
-        strcpy(dest_dir, tok);
+    while ((tok = strtok_r(command, " ", &command))) {
+        if (++i == 3) break;
     }
 
-    // We can either traverse up a directory or down.
+    char *val = malloc(sizeof(char));
+    strcpy(val, tok);
 
-    strcpy(*curr_dir, dest_dir);
+    if (strcmp(val, "..") == 0) {
+        stack_pop(path);
+    } else {
+        stack_push(path, val);
+    }
+
+    printf("peek stack: %s\n", (char*)stack_peek(path));
 }
 
-void parse_command(char command[LINE_SIZE], char **curr_dir) {
-    printf("addr inside: %p\n", curr_dir);
+void parse_command(char command[LINE_SIZE], Stack *path) {
     if (strlen(command) < 4) {
         printf("malformed command string: %s\n", command);
         exit(1);
@@ -37,13 +35,11 @@ void parse_command(char command[LINE_SIZE], char **curr_dir) {
 
     switch (command[2]) {
         case 'c':  // cd
-            parse_cd(command, curr_dir);
+            parse_cd(command, path);
             break;
         case 'l':  // ls
             break;
     }
-
-    printf("new dir outside: %s\n", *curr_dir);
 }
 
 int main(int argc, char *argv[]) {
@@ -51,17 +47,19 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    char *curr_dir = NULL;
-    curr_dir = malloc(sizeof(char) * DIRNAME_LENGTH);
+    Stack path = stack_new(PATH_LENGTH);
 
     char buf[LINE_SIZE];
     FILE* input = fopen(argv[1], "r");
     while (fgets(buf, LINE_SIZE, input) != NULL) {
         buf[strcspn(buf, "\n")] = 0;  // strip trailing newline
 
-        if (strlen(buf) > 0 && buf[0] == '$') parse_command(buf, &curr_dir);
+        if (strlen(buf) > 0 && buf[0] == '$') parse_command(buf, &path);
+
     }
+
+    printf("top of path stack: %s\n", (char*)stack_peek(&path));
     fclose(input);
 
-    printf("curr_dir is: %s\n", curr_dir);
+    stack_free(&path);
 }
