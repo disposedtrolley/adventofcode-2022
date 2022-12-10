@@ -1,6 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
+#include <stdio.h>
 #include <stdbool.h>
 
 typedef struct StackEntry {
@@ -45,6 +46,12 @@ Stack reverse_stack(Stack *s) {
     }
 
     return reversed;
+}
+
+void free_stack(Stack *s) {
+    for (size_t i = 0; i < s->entries; i++) {
+        free(s->entries[i].value);
+    }
 }
 
 #endif
