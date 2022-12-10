@@ -55,7 +55,6 @@ int main(int argc, char *argv[]) {
         buf[strcspn(buf, "\n")] = 0;  // strip trailing newline
 
         if (strlen(buf) > 0 && buf[0] == '$') parse_command(buf, &path);
-
     }
 
     printf("top of path stack: %s\n", (char*)stack_peek(&path));

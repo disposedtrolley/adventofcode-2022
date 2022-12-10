@@ -10,18 +10,20 @@ typedef struct StackEntry {
 
 typedef struct Stack {
     int sp;
+    int cap;
     int size;
     StackEntry *entries;
 } Stack;
 
-Stack stack_new(const int size) {
-    Stack s = { .sp = -1, .size = size };
-    s.entries = calloc(s.size, sizeof(StackEntry));
+Stack stack_new(const int cap) {
+    Stack s = { .sp = -1, .cap = cap, .size = 0 };
+    s.entries = calloc(s.cap, sizeof(StackEntry));
     return s;
 }
 
 void stack_push(Stack *s, void* val) {
     s->sp++;
+    s->size++;
     s->entries[s->sp].value = val;
 }
 
@@ -40,7 +42,7 @@ bool stack_empty(Stack *s) {
 }
 
 Stack stack_reverse(Stack *s) {
-    Stack reversed = stack_new(s->size);
+    Stack reversed = stack_new(s->cap);
     while (!stack_empty(s)) {
         stack_push(&reversed, stack_pop(s));
     }
@@ -49,7 +51,7 @@ Stack stack_reverse(Stack *s) {
 }
 
 void stack_free(Stack *s) {
-    for (size_t i = 0; i < s->entries; i++) {
+    for (size_t i = 0; i < s->size; i++) {
         free(s->entries[i].value);
     }
 }
