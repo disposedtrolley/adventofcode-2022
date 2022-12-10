@@ -11,7 +11,7 @@ void parse_stack_row(const char row[], Stack stacks[]) {
         if (row[i] >= 65 && row[i] <= 90) {
             // Reached a stack.
             // Stack index is one less than the label because the stacks are zero-indexed.
-            push_stack(&stacks[i/4], row[i]);
+            stack_push(&stacks[i/4], row[i]);
         }
     }
 }
@@ -58,7 +58,7 @@ void run(char fname[], int part) {
 
     const int N_STACKS = 9;
     Stack stacks[N_STACKS];
-    for (size_t i = 0; i < N_STACKS; i++) stacks[i] = new_stack(STACK_SIZE);
+    for (size_t i = 0; i < N_STACKS; i++) stacks[i] = stack_new(STACK_SIZE);
 
     const int LINE_SIZE = 256;
     char buf[LINE_SIZE];
@@ -83,7 +83,7 @@ void run(char fname[], int part) {
 
     // Reverse the stacks, so they're in the correct order.
     for (size_t i = 0; i < N_STACKS; i++) {
-        stacks[i] = reverse_stack(&stacks[i]);
+        stacks[i] = stack_reverse(&stacks[i]);
     }
 
     // Run through instructions.
@@ -95,17 +95,17 @@ void run(char fname[], int part) {
         switch(part) {
             case 1:
                 for (size_t j = 0; j < n_to_move; j++) {
-                    push_stack(&to, pop_stack(&from));
+                    stack_push(&to, stack_pop(&from));
                 }
                 break;
             case 2:
                 // Use the tmp stack to retain the original order of crates.
-                Stack tmp = new_stack(STACK_SIZE);
+                Stack tmp = stack_new(STACK_SIZE);
                 for (size_t j = 0; j < n_to_move; j++) {
-                    push_stack(&tmp, pop_stack(&from));
+                    stack_push(&tmp, stack_pop(&from));
                 }
-                while(!empty(&tmp)) {
-                    push_stack(&to, pop_stack(&tmp));
+                while(!stack_empty(&tmp)) {
+                    stack_push(&to, stack_pop(&tmp));
                 }
                 break;
         }
@@ -116,7 +116,7 @@ void run(char fname[], int part) {
 
     printf("Part %d: ", part);
     for (size_t i = 0; i < N_STACKS; i++) {
-        printf("%c", peek_stack(&stacks[i]));
+        printf("%c", stack_peek(&stacks[i]));
     }
     printf("\n");
 }

@@ -14,41 +14,41 @@ typedef struct Stack {
     StackEntry *entries;
 } Stack;
 
-Stack new_stack(const int size) {
+Stack stack_new(const int size) {
     Stack s = { .sp = -1, .size = size };
     s.entries = calloc(s.size, sizeof(StackEntry));
     return s;
 }
 
-void push_stack(Stack *s, void* val) {
+void stack_push(Stack *s, void* val) {
     s->sp++;
     s->entries[s->sp].value = val;
 }
 
-void* pop_stack(Stack *s)  {
+void* stack_pop(Stack *s)  {
     void *ret = s->entries[s->sp].value;
     s->sp--;
     return ret;
 }
 
-void* peek_stack(Stack *s) {
+void* stack_peek(Stack *s) {
     return s->entries[s->sp].value;
 }
 
-bool empty(Stack *s) {
+bool stack_empty(Stack *s) {
     return s->sp == -1;
 }
 
-Stack reverse_stack(Stack *s) {
-    Stack reversed = new_stack(s->size);
-    while (!empty(s)) {
-        push_stack(&reversed, pop_stack(s));
+Stack stack_reverse(Stack *s) {
+    Stack reversed = stack_new(s->size);
+    while (!stack_empty(s)) {
+        stack_push(&reversed, stack_pop(s));
     }
 
     return reversed;
 }
 
-void free_stack(Stack *s) {
+void stack_free(Stack *s) {
     for (size_t i = 0; i < s->entries; i++) {
         free(s->entries[i].value);
     }
