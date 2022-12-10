@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "stack/stack.h"
 
+#define STACK_SIZE 100
+
 void parse_stack_row(const char row[], Stack stacks[]) {
     for (size_t i = 0; i < strlen(row); i++) {
         if (row[i] >= 65 && row[i] <= 90) {
@@ -56,7 +58,7 @@ void run(char fname[], int part) {
 
     const int N_STACKS = 9;
     Stack stacks[N_STACKS];
-    for (size_t i = 0; i < N_STACKS; i++) stacks[i] = new_stack();
+    for (size_t i = 0; i < N_STACKS; i++) stacks[i] = new_stack(STACK_SIZE);
 
     const int LINE_SIZE = 256;
     char buf[LINE_SIZE];
@@ -98,7 +100,7 @@ void run(char fname[], int part) {
                 break;
             case 2:
                 // Use the tmp stack to retain the original order of crates.
-                Stack tmp = new_stack();
+                Stack tmp = new_stack(STACK_SIZE);
                 for (size_t j = 0; j < n_to_move; j++) {
                     push_stack(&tmp, pop_stack(&from));
                 }

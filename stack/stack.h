@@ -3,31 +3,35 @@
 
 #include <stdbool.h>
 
-#define STACK_SIZE 100
+typedef struct StackEntry {
+    void* value;
+} StackEntry;
 
 typedef struct Stack {
     int sp;
-    void *values[STACK_SIZE];
+    int size;
+    StackEntry *entries;
 } Stack;
 
-Stack new_stack() {
-    Stack s = { .sp = -1 };
+Stack new_stack(const int size) {
+    Stack s = { .sp = -1, .size = size };
+    s.entries = calloc(s.size, sizeof(StackEntry));
     return s;
 }
 
 void push_stack(Stack *s, void* val) {
     s->sp++;
-    s->values[s->sp] = val;
+    s->entries[s->sp].value = val;
 }
 
 void* pop_stack(Stack *s)  {
-    char ret = s->values[s->sp];
+    void *ret = s->entries[s->sp].value;
     s->sp--;
     return ret;
 }
 
 void* peek_stack(Stack *s) {
-    return s->values[s->sp];
+    return s->entries[s->sp].value;
 }
 
 bool empty(Stack *s) {
@@ -35,7 +39,7 @@ bool empty(Stack *s) {
 }
 
 Stack reverse_stack(Stack *s) {
-    Stack reversed = new_stack();
+    Stack reversed = new_stack(s->size);
     while (!empty(s)) {
         push_stack(&reversed, pop_stack(s));
     }
