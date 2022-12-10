@@ -1,11 +1,13 @@
 #ifndef STACK_H
 #define STACK_H
 
+#include <stdbool.h>
+
 #define STACK_SIZE 100
 
 typedef struct Stack {
     int sp;
-    char values[STACK_SIZE];
+    void *values[STACK_SIZE];
 } Stack;
 
 Stack new_stack() {
@@ -13,22 +15,22 @@ Stack new_stack() {
     return s;
 }
 
-void push_stack(Stack *s, char val) {
+void push_stack(Stack *s, void* val) {
     s->sp++;
     s->values[s->sp] = val;
 }
 
-char pop_stack(Stack *s)  {
+void* pop_stack(Stack *s)  {
     char ret = s->values[s->sp];
     s->sp--;
     return ret;
 }
 
-char peek_stack(Stack *s) {
+void* peek_stack(Stack *s) {
     return s->values[s->sp];
 }
 
-char empty(Stack *s) {
+bool empty(Stack *s) {
     return s->sp == -1;
 }
 
