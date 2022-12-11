@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    ht *dirs = ht_create();
     Stack path = stack_new(PATH_LENGTH);
 
     char buf[LINE_SIZE];
@@ -31,16 +32,22 @@ int main(int argc, char *argv[]) {
 
                     char *val = malloc(sizeof(char));
                     strcpy(val, tok);
+                    if (strcmp(val, "/") == 0) val = "ROOT";
 
                     if (strcmp(val, "..") == 0) {
                         stack_pop(&path);
                     } else {
                         stack_push(&path, val);
-                    }
 
-                    printf("peek stack: %s\n", (char*)stack_peek(&path));
+                        char joined[DIRNAME_LENGTH * 10] = {0};
+                        stack_join(&path, "/", joined);
+                        ht_set(dirs, joined, 0);
+                    }
                     break;
                 case 'l':  // ls
+                    char joined[DIRNAME_LENGTH * 10] = {0};
+                    stack_join(&path, "/", joined);
+
                     break;
             }
         }
@@ -54,4 +61,6 @@ int main(int argc, char *argv[]) {
     printf("joined: %s\n", joined);
 
     stack_free(&path);
+
+    ht_destroy(dirs);
 }

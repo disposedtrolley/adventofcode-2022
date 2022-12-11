@@ -52,9 +52,7 @@ Stack stack_reverse(Stack *s) {
 }
 
 void stack_free(Stack *s) {
-    for (size_t i = 0; i < s->size; i++) {
-        free(s->entries[i].value);
-    }
+    free(s->entries);
 }
 
 void stack_join(Stack *s, char* sep, char* joined) {
@@ -62,8 +60,6 @@ void stack_join(Stack *s, char* sep, char* joined) {
         strcat(joined, s->entries[i].value);
         if (i != s->sp) strcat(joined, sep);
     }
-
-    printf("joined inside: %s\n", joined);
 }
 
 #endif
