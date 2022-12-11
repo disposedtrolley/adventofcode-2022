@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct StackEntry {
     void* value;
@@ -54,6 +55,15 @@ void stack_free(Stack *s) {
     for (size_t i = 0; i < s->size; i++) {
         free(s->entries[i].value);
     }
+}
+
+void stack_join(Stack *s, char* sep, char* joined) {
+    for (size_t i = 0; i <= s->sp; i++) {
+        strcat(joined, s->entries[i].value);
+        if (i != s->sp) strcat(joined, sep);
+    }
+
+    printf("joined inside: %s\n", joined);
 }
 
 #endif
