@@ -41,6 +41,70 @@ bool visible(int tree_idx, int *trees, int stride, int length) {
     return visible; // bottom
 }
 
+int scenic_score(int tree_idx, int *trees, int stride, int length) {
+    int score = 1;
+
+    // Row
+    int left_blocked_idx = -1, right_blocked_idx = -1;
+    int row_begin = (tree_idx / stride) * stride;
+    for (size_t i = row_begin; i < row_begin + stride; i++) {
+        if (i < tree_idx) {
+            // visibility from left
+            if (trees[i] >= trees[tree_idx]) left_blocked_idx = i;
+        } else if (i > tree_idx) {
+            // visibility from right
+            if (trees[i] >= trees[tree_idx]) {
+                right_blocked_idx = i;
+                break;
+            }
+        }
+    }
+
+    if (left_blocked_idx == -1) {
+        score *= tree_idx - row_begin;
+    } else {
+        score *= tree_idx - left_blocked_idx;
+    }
+
+    if (right_blocked_idx == -1) {
+        score *= row_begin + stride - tree_idx;
+    } else {
+        score *= right_blocked_idx - tree_idx;
+    }
+
+    // Column
+    int top_blocked_idx = -1, bottom_blocked_idx = -1;
+    int col_offset = tree_idx - row_begin;
+    for (size_t row_offset = 0; row_offset < stride * length; row_offset += stride) {
+        if (row_offset + col_offset < tree_idx) {
+            // visibility from top
+            if (trees[row_offset + col_offset] >= trees[tree_idx]) {
+                top_blocked_idx = row_offset + col_offset;
+            }
+        } else if (row_offset + col_offset > tree_idx) {
+            // visibility from bottom
+            if (trees[row_offset + col_offset] >= trees[tree_idx]) {
+                bottom_blocked_idx = row_offset + col_offset;
+                break;
+            }
+        }
+    }
+
+    if (top_blocked_idx == -1) {
+        score *= tree_idx / stride;
+    } else {
+        score *= (tree_idx - top_blocked_idx) / stride;
+    }
+
+    if (bottom_blocked_idx == -1) {
+        score *= (stride*length-tree_idx) / stride;
+    } else {
+        score *= (bottom_blocked_idx - tree_idx) / stride;
+    }
+
+    return score;
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         exit(1);
@@ -73,14 +137,19 @@ int main(int argc, char *argv[]) {
     fclose(input);
 
     int visible_trees = stride * 2 + (length-2) * 2;
+    int max_scenic_score = 0;
 
     for (size_t row = 1; row < length-1; row++) {
         for (size_t col = 1; col < stride-1; col++) {
             int idx = row*stride + col;
             bool is_visible = visible(idx, trees, stride, length);
             if (is_visible) visible_trees++;
+
+            int score = scenic_score(idx, trees, stride, length);
+            if (score > max_scenic_score) max_scenic_score = score;
         }
     };
 
     printf("Part 1: %d\n", visible_trees);
+    printf("Part 2: %d\n", max_scenic_score);
 }
