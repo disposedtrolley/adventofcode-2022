@@ -9,10 +9,74 @@
 #define DIRNAME_LENGTH 100
 #define DEPTH 20
 
+#define ROOT "ROOT"
+
 #define MAX_SIZE 100000
+
+#define FS_SPACE_AVAILABLE 70000000
+#define FS_REQUIRED_FREE 30000000
 
 bool includes(const char *str, const char *substr) {
     return strstr(str, substr) != NULL;
+}
+
+int comp (const void* elem1, const void* elem2) {
+    int f = *((int*)elem1);
+    int s = *((int*)elem2);
+    if (f > s) return 1;
+    if (f < s) return -1;
+    return 0;
+}
+
+void part_1(ht *fs) {
+    int sum_sizes = 0;
+
+    hti iterator = ht_iterator(fs);
+    while (ht_next(&iterator)) {
+        int total_size = iterator.value;
+
+        hti jiterator = ht_iterator(fs);
+        while (ht_next(&jiterator)) {
+            if (!includes(jiterator.key, iterator.key) || strcmp(iterator.key, jiterator.key) == 0) continue;
+            total_size += jiterator.value;
+        }
+
+        if (total_size <= MAX_SIZE) sum_sizes += total_size;
+    }
+
+    printf("Part 1: %d\n", sum_sizes);
+}
+
+void part_2(ht *fs) {
+    int used_space = 0;
+    int *dir_sizes = NULL;
+
+    int i = 0;
+    hti iterator = ht_iterator(fs);
+    while (ht_next(&iterator)) {
+        int total_size = iterator.value;
+
+        hti jiterator = ht_iterator(fs);
+        while (ht_next(&jiterator)) {
+            if (!includes(jiterator.key, iterator.key) || strcmp(iterator.key, jiterator.key) == 0) continue;
+            total_size += jiterator.value;
+        }
+
+        dir_sizes = realloc(dir_sizes, (i+1) * sizeof(int));
+        dir_sizes[i] = total_size;
+        i++;
+
+        if (strcmp(iterator.key, ROOT) == 0) used_space = total_size;
+    }
+
+    qsort(dir_sizes, i+1, sizeof(int), comp);
+
+    for (size_t dir_idx = 0; dir_idx <= i; dir_idx++) {
+        if (FS_SPACE_AVAILABLE - used_space + dir_sizes[dir_idx] >= FS_REQUIRED_FREE) {
+            printf("Part 2: %d\n", dir_sizes[dir_idx]);
+            break;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -38,7 +102,7 @@ int main(int argc, char *argv[]) {
 
             char *val = malloc(sizeof(char));
             strcpy(val, tok);
-            if (strcmp(val, "/") == 0) val = "ROOT";
+            if (strcmp(val, "/") == 0) val = ROOT;
 
             if (strcmp(val, "..") == 0) {
                 stack_pop(&path);
@@ -66,24 +130,9 @@ int main(int argc, char *argv[]) {
         }
     }
     fclose(input);
-
-    int sum_sizes = 0;
-
-    hti iterator = ht_iterator(dirs);
-    while (ht_next(&iterator)) {
-        int total_size = iterator.value;
-
-        hti jiterator = ht_iterator(dirs);
-        while (ht_next(&jiterator)) {
-            if (!includes(jiterator.key, iterator.key) || strcmp(iterator.key, jiterator.key) == 0) continue;
-            total_size += jiterator.value;
-        }
-
-        if (total_size <= MAX_SIZE) sum_sizes += total_size;
-    }
-
     stack_free(&path);
-    ht_destroy(dirs);
 
-    printf("Part 1: %d\n", sum_sizes);
+    part_1(dirs);
+    part_2(dirs);
+    ht_destroy(dirs);
 }
